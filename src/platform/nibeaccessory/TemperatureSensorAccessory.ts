@@ -21,6 +21,8 @@ export class TemperatureSensorAccessory extends AccessoryDefinition {
     if (result) {
       return true;
     }
+
+    console.log(JSON.stringify(data));
     this.log.debug(`Conditions not meet for accessory: [${this.buildIdentifier(data)}]`);
     return false;
   }

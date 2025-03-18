@@ -1,8 +1,8 @@
-import {API, APIEvent, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig} from 'homebridge';
-import {MyUplinkApiFetcher} from './myuplink/MyUplinkApiFetcher';
+import { API, APIEvent, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig } from 'homebridge';
+import { MyUplinkApiFetcher } from './myuplink/MyUplinkApiFetcher';
 import * as dataDomain from './DataDomain';
-import {Data, DataFetcher} from './DataDomain';
-import {Locale} from './util/Locale';
+import { Data, DataFetcher } from './DataDomain';
+import { Locale } from './util/Locale';
 import {
   AccessoryContext,
   AccessoryDefinition,
@@ -10,9 +10,9 @@ import {
   ServiceResolver,
   ServiceType,
 } from './AccessoryDomain';
-import {TemperatureSensorAccessory} from './nibeaccessory/TemperatureSensorAccessory';
-import {HotWaterAccessory} from './nibeaccessory/HotWaterAccessory';
-import {NewFirmwareAccessory} from './nibeaccessory/NewFirmwareAccessory';
+import { TemperatureSensorAccessory } from './nibeaccessory/TemperatureSensorAccessory';
+import { HotWaterAccessory } from './nibeaccessory/HotWaterAccessory';
+import { NewFirmwareAccessory } from './nibeaccessory/NewFirmwareAccessory';
 
 export const PLATFORM_NAME = 'Nibe';
 export const PLUGIN_NAME = 'homebridge-nibe';
@@ -52,13 +52,17 @@ export class NibePlatform implements DynamicPlatformPlugin {
 
     this.accessoryDefinitions = [
       new TemperatureSensorAccessory('40067', 'average-outdoor-temperature-40067', 1, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('54', 'Average temper­ature (BT1)', 1, this.locale, this.serviceResolver, this.log),
       new TemperatureSensorAccessory('40004', 'outdoor-temperature-40004', 1, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('4', 'Current outdoor temper­ature (BT1)', 1, this.locale, this.serviceResolver, this.log),
       new TemperatureSensorAccessory('44362', 'outdoor-temperature-44362', 1, this.locale, this.serviceResolver, this.log),
       new TemperatureSensorAccessory('40025', 'ventilation-exhaust-air-40025', 1, this.locale, this.serviceResolver, this.log),
       new TemperatureSensorAccessory('40026', 'ventilation-extract-air-40026', 1, this.locale, this.serviceResolver, this.log),
       new TemperatureSensorAccessory('40075', 'ventilation-supply-air-40075', 1, this.locale, this.serviceResolver, this.log),
       new TemperatureSensorAccessory('40183', 'ventilation-outdoor-40183', 1, this.locale, this.serviceResolver, this.log),
       new TemperatureSensorAccessory('40013', 'hot-water-top-40013', 1, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('12', 'Hot water char­ging (BT6)', 1, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('38', 'Pool (BT51)', 1, this.locale, this.serviceResolver, this.log),
       new HotWaterAccessory('hot-water', 3, this.locale, this.serviceResolver, this.log,
         async (deviceId: string, paramId: string, value: any) => {
           return await this.dataFetcher.setValue(deviceId, paramId, value);
@@ -156,7 +160,7 @@ export class NibePlatform implements DynamicPlatformPlugin {
    * It should be used to setup event handlers for characteristics and update respective values.
    */
   configureAccessory(accessory: PlatformAccessory<AccessoryContext>) {
-    this.log.info( `Loading accessory from cache: [${accessory.displayName}], UUID: [${accessory.UUID}]`);
+    this.log.info(`Loading accessory from cache: [${accessory.displayName}], UUID: [${accessory.UUID}]`);
     this.accessories.push(accessory as AccessoryInstance);
   }
 }
