@@ -1,14 +1,14 @@
 {
   "name": "homebridge-nibe-s1156",
   "displayName": "Homebridge Nibe S1156",
-  "version": "2.3.0",
+  "version": "0.1.0",
   "description": "Homebridge plugin for Nibe S1156",
   "author": "Alexander Link",
   "license": "MIT",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hp-net/homebridge-nibe.git"
+    "url": "git+https://github.com/buddyshome/homebridge-nibe-s1156.git"
   },
   "scripts": {
     "test": "gulp test",
