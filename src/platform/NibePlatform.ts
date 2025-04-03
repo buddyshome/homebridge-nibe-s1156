@@ -14,8 +14,8 @@ import { TemperatureSensorAccessory } from './nibeaccessory/TemperatureSensorAcc
 import { HotWaterAccessory } from './nibeaccessory/HotWaterAccessory';
 import { NewFirmwareAccessory } from './nibeaccessory/NewFirmwareAccessory';
 
-export const PLATFORM_NAME = 'Nibe';
-export const PLUGIN_NAME = 'homebridge-nibe';
+export const PLATFORM_NAME = 'Nibe-s1156';
+export const PLUGIN_NAME = 'homebridge-nibe-s1156';
 
 /**
  * HomebridgePlatform
