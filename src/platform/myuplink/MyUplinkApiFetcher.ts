@@ -1,22 +1,22 @@
-import axios, {AxiosError} from 'axios';
-import {EventEmitter} from 'events';
+import axios, { AxiosError } from 'axios';
+import { EventEmitter } from 'events';
 import * as dataDomain from '../DataDomain';
-import {Data, DataFetcher} from '../DataDomain';
-import {Logger} from '../PlatformDomain';
+import { Data, DataFetcher } from '../DataDomain';
+import { Logger } from '../PlatformDomain';
 import * as api from './MyUplinkApiModel';
-import {Cache} from '../util/Cache';
+import { Cache } from '../util/Cache';
 import moment from 'moment';
 
 interface Options {
-    clientId: string;
-    clientSecret: string;
-    interval: number;
-    language: string;
-    showApiResponse: boolean;
+  clientId: string;
+  clientSecret: string;
+  interval: number;
+  language: string;
+  showApiResponse: boolean;
 }
 
 interface Session extends api.Session {
-    expires_at?: number;
+  expires_at?: number;
 }
 
 const consts = {
@@ -26,7 +26,7 @@ const consts = {
   timeout: 45000,
   userAgent: 'homebridge-nibe',
   renewBeforeExpiry: 5 * 60 * 1000,
-  allowedParameters: [4,12,38,54,40067,40004,44362,40013,40014,40008,40025,40026,40075,40183,48132,43437],
+  allowedParameters: [4, 12, 38, 54, 40067, 40004, 44362, 40013, 40014, 40008, 40025, 40026, 40075, 40183, 48132, 43437],
 };
 
 export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
@@ -100,10 +100,16 @@ export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
           try {
             const parameters = await this.fetchData(device);
 
-            const data = MyUplinkApiFetcher.mapData(system, subscriptions, device, deviceInfo, parameters);
-            if (data) {
-              this.log.debug(`Prepared data:\n${JSON.stringify(data)}`);
-              this._onData(data);
+            //Ensure data points are returned as parameters. Sometimes the API returns an empty array. Then
+            //de-registration happens and we have loose all our configured accessories.
+            if (parameters && parameters.length > 0) {
+              const data = MyUplinkApiFetcher.mapData(system, subscriptions, device, deviceInfo, parameters);
+              if (data) {
+                this.log.debug(`Prepared data:\n${JSON.stringify(data)}`);
+                this._onData(data);
+              }
+            } else {
+              throw new Error('No data parameters return from MyUplinkApiFetcher.mapData. So no data points to handle.');
             }
           } catch (error) {
             this._onError(error);
@@ -131,14 +137,14 @@ export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
       const now = Date.now();
       const { data } = await axios.post<Session>(
         url, new URLSearchParams(body).toString(), {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
+      },
       );
 
-      if(this.options.showApiResponse) {
-        this.log.info('Nibe data from '+url+': ' +JSON.stringify(data));
+      if (this.options.showApiResponse) {
+        this.log.info('Nibe data from ' + url + ': ' + JSON.stringify(data));
       }
 
       const expiresIn = data.expires_in ?? 3600;
@@ -194,8 +200,8 @@ export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
     this.log.debug('Fetch units.');
     const response = await this.getFromMyUplink<api.Parameter[]>(
       `/v2/devices/${device.id}/points`, {
-        parameters: consts.allowedParameters.join(','),
-      },
+      parameters: consts.allowedParameters.join(','),
+    },
     );
     this.log.debug(`${response.length} parameters fetched.`);
     return response;
@@ -235,8 +241,8 @@ export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
         params,
       });
 
-      if(this.options.showApiResponse) {
-        this.log.info('Nibe data from '+url+': ' +JSON.stringify(data));
+      if (this.options.showApiResponse) {
+        this.log.info('Nibe data from ' + url + ': ' + JSON.stringify(data));
       }
 
       return data;
@@ -246,7 +252,7 @@ export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
   }
 
   public async setValue(deviceId: string, paramId: string, value: any): Promise<void> {
-    const key = deviceId+paramId+JSON.stringify(value);
+    const key = deviceId + paramId + JSON.stringify(value);
     if (this.currentlySetting[key]) {
       return;
     }
@@ -262,8 +268,8 @@ export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
           Authorization: 'Bearer ' + this.getSession('access_token'),
         },
       }).then(result => {
-        if(this.options.showApiResponse) {
-          this.log.info('Nibe data from '+url+': ' +JSON.stringify(result.data));
+        if (this.options.showApiResponse) {
+          this.log.info('Nibe data from ' + url + ': ' + JSON.stringify(result.data));
         }
       }).finally(() => {
         delete this.currentlySetting[key];
