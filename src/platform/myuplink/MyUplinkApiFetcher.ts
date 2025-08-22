@@ -137,10 +137,10 @@ export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
       const now = Date.now();
       const { data } = await axios.post<Session>(
         url, new URLSearchParams(body).toString(), {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
         },
-      },
       );
 
       if (this.options.showApiResponse) {
@@ -200,8 +200,8 @@ export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
     this.log.debug('Fetch units.');
     const response = await this.getFromMyUplink<api.Parameter[]>(
       `/v2/devices/${device.id}/points`, {
-      parameters: consts.allowedParameters.join(','),
-    },
+        parameters: consts.allowedParameters.join(','),
+      },
     );
     this.log.debug(`${response.length} parameters fetched.`);
     return response;
