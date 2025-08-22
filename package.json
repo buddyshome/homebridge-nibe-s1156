@@ -1,7 +1,7 @@
 {
   "name": "homebridge-nibe-s1156",
   "displayName": "Homebridge Nibe S1156",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Homebridge plugin for Nibe S1156",
   "author": "Alexander Link",
   "license": "MIT",
@@ -60,6 +60,7 @@
     "gulp-imagemin": "7.1.0",
     "gulp-jest": "^4.0.4",
     "gulp-nodemon": "^2.5.0",
+    "gulp-sourcemaps": "^3.0.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "homebridge": "^1.9.0",
     "homebridge-config-ui-x": "^4.71.2",

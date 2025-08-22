@@ -7,6 +7,7 @@ import del from 'del';
 import gulpESLintNew from 'gulp-eslint-new';
 import nodemon from 'gulp-nodemon';
 import jest from 'gulp-jest';
+import sourcemaps from 'gulp-sourcemaps';
 
 const tsProject = ts.createProject('tsconfig.json', { rootDir: 'src/' });
 const destDir = 'dist/';
@@ -26,7 +27,9 @@ exports.yamlBuild = () => src('+(config|lang)/*.yaml')
   .pipe(dest(`${destDir}`));
 
 exports.typescriptBuild = () => src('src/**/*.ts')
+  .pipe(sourcemaps.init())
   .pipe(tsProject())
+  .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '../src' }))
   .pipe(dest(`${destDir}`));
 
 exports.eslint = () => src(['src/**/*.ts', 'gulpfile.ts'])
