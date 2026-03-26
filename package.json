@@ -18,7 +18,8 @@
     "build": "npm run clean && gulp",
     "prepublishOnly": "npm run test && npm run build",
     "postpublish": "npm run clean",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "install": "npm install --ignore-scripts"
   },
   "keywords": [
     "homebridge-plugin",
