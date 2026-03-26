@@ -1,7 +1,7 @@
 {
   "name": "homebridge-nibe-s1156",
   "displayName": "Homebridge Nibe S1156",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Homebridge plugin for Nibe S1156",
   "author": "Alexander Link",
   "license": "MIT",
@@ -19,7 +19,7 @@
     "prepublishOnly": "npm run test && npm run build",
     "postpublish": "npm run clean",
     "postversion": "git push && git push --tags",
-    "install": "npm install --ignore-scripts"
+    "localinstall": "npm install --ignore-scripts"
   },
   "keywords": [
     "homebridge-plugin",
