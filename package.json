@@ -19,7 +19,7 @@
     "prepublishOnly": "npm run test && npm run build",
     "postpublish": "npm run clean",
     "postversion": "git push && git push --tags",
-    "install": "npm install --ignore-scripts"
+    "localinstall": "npm install --ignore-scripts"
   },
   "keywords": [
     "homebridge-plugin",
