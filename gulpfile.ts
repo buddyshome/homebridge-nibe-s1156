@@ -1,8 +1,5 @@
 import {dest, parallel, series, src} from 'gulp';
 import * as ts from 'gulp-typescript';
-import gulpif from 'gulp-if';
-import htmlmin from 'gulp-htmlmin';
-import imagemin from 'gulp-imagemin';
 import del from 'del';
 import gulpESLintNew from 'gulp-eslint-new';
 import nodemon from 'gulp-nodemon';
@@ -11,16 +8,8 @@ import sourcemaps from 'gulp-sourcemaps';
 
 const tsProject = ts.createProject('tsconfig.json', { rootDir: 'src/' });
 const destDir = 'dist/';
-const isHtml = (file) => file.extname === '.html';
-const isImage = (file) => file.extname === '.png';
 
 exports.uiBuild = () => src('homebridge-ui/**')
-  .pipe(gulpif(isHtml, htmlmin({
-    collapseWhitespace: true,
-    minifyCSS: true,
-    minifyJS: true,
-  })))
-  .pipe(gulpif(isImage, imagemin()))
   .pipe(dest(`${destDir}homebridge-ui/`));
 
 exports.yamlBuild = () => src('+(config|lang)/*.yaml')
