@@ -1,10 +1,14 @@
-import {dest, parallel, series, src} from 'gulp';
+import {dest, parallel, series, src, watch as gulpWatch} from 'gulp';
 import * as ts from 'gulp-typescript';
 import del from 'del';
 import gulpESLintNew from 'gulp-eslint-new';
 import nodemon from 'gulp-nodemon';
 import jest from 'gulp-jest';
 import sourcemaps from 'gulp-sourcemaps';
+import { execSync } from 'child_process';
+import * as path from 'path';
+import * as os from 'os';
+import * as fs from 'fs';
 
 const tsProject = ts.createProject('tsconfig.json', { rootDir: 'src/' });
 const destDir = 'dist/';
@@ -34,33 +38,44 @@ exports.clean = () => del([`${destDir}`]);
 
 exports.build = parallel(exports.yamlBuild, exports.typescriptBuild, exports.uiBuild);
 
-exports.watch = (done) => nodemon({
-  exec: 'homebridge -I -D',
-  signal: 'SIGTERM',
-  ext: 'ts html yaml',
-  ignore: [`${destDir}**`],
-  env: { 'NODE_OPTIONS': '--trace-warnings' },
-  done: done,
-  tasks: function (changedFiles) {
-    const tasks = Array<string>();
-    if (!changedFiles) {
-      return tasks;
-    }
-    changedFiles.forEach(function (file) {
-      const fileExt = file.split('.').pop();
-      if (fileExt === 'ts' && !~tasks.indexOf('typescriptBuild')) {
-        tasks.push('typescriptBuild');
-      }
-      if (fileExt === 'html' && !~tasks.indexOf('uiBuild')) {
-        tasks.push('uiBuild');
-      }
-      if (fileExt === 'yaml' && !~tasks.indexOf('yamlBuild')) {
-        tasks.push('yamlBuild');
-      }
-    });
-    return tasks;
-  },
-});
+// Use the globally installed homebridge, not the local devDependency
+// (npm run puts node_modules/.bin first on PATH).
+const globalHomebridge = () => {
+  const prefix = execSync('npm prefix -g').toString().trim();
+  return process.platform === 'win32'
+    ? path.join(prefix, 'homebridge.cmd')
+    : path.join(prefix, 'bin', 'homebridge');
+};
+
+// Homebridge UI (hb-service style) reads its log from <storage>/homebridge.log.
+const homebridgeLogFile = path.join(os.homedir(), '.homebridge', 'homebridge.log');
+
+// gulp rebuilds sources into dist/, nodemon restarts homebridge when dist/ changes.
+// (gulp-nodemon's own `tasks` option spawns gulp via an unquoted shell path and
+// breaks when the project path contains spaces.)
+exports.watch = (done) => {
+  gulpWatch('src/**/*.ts', exports.typescriptBuild);
+  gulpWatch('homebridge-ui/**', exports.uiBuild);
+  gulpWatch('+(config|lang)/*.yaml', exports.yamlBuild);
+
+  nodemon({
+    exec: `"${globalHomebridge()}" -I -D`,
+    signal: 'SIGTERM',
+    stdout: false,
+    watch: [destDir],
+    ext: 'js html yaml',
+    delay: 1000,
+    env: { 'NODE_OPTIONS': '--trace-warnings' },
+    done: done,
+  }).on('readable', function (this: { stdout: NodeJS.ReadableStream; stderr: NodeJS.ReadableStream }) {
+    // Fires on each (re)start: mirror output to the console and to the UI log file.
+    const logFile = fs.createWriteStream(homebridgeLogFile, { flags: 'a' });
+    this.stdout.pipe(process.stdout, { end: false });
+    this.stderr.pipe(process.stderr, { end: false });
+    this.stdout.pipe(logFile);
+    this.stderr.pipe(logFile, { end: false });
+  });
+};
 
 exports.jest = () => {
   process.env.NODE_ENV = 'test';
