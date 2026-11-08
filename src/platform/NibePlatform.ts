@@ -63,6 +63,7 @@ export class NibePlatform implements DynamicPlatformPlugin {
       new TemperatureSensorAccessory('40013', 'hot-water-top-40013', 1, this.locale, this.serviceResolver, this.log),
       new TemperatureSensorAccessory('12', 'Hot water char­ging (BT6)', 1, this.locale, this.serviceResolver, this.log),
       new TemperatureSensorAccessory('38', 'Pool (BT51)', 1, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('24632', 'Pool supply line (BT59)', 1, this.locale, this.serviceResolver, this.log),
       new HotWaterAccessory('hot-water', 3, this.locale, this.serviceResolver, this.log,
         async (deviceId: string, paramId: string, value: any) => {
           return await this.dataFetcher.setValue(deviceId, paramId, value);
