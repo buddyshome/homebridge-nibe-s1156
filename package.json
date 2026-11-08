@@ -56,7 +56,7 @@
     "gulp": "^5.0.0",
     "gulp-eslint-new": "^1.7.2",
     "gulp-jest": "^4.0.4",
-    "gulp-nodemon": "^2.2.1",
+    "gulp-nodemon": "^2.5.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^6.0.0-alpha.1",
     "homebridge": "^1.9.0 || ^2.0.0",
@@ -68,5 +68,15 @@
     "ts-node": "^10.9.2",
     "tslib": "^2.6.3",
     "typescript": "^5.4.5"
+  },
+  "overrides": {
+    "gulp-nodemon": {
+      "gulp": "$gulp",
+      "nodemon": "$nodemon"
+    },
+    "homebridge-config-ui-x": {
+      "@fastify/static": "^10.1.10"
+    },
+    "decode-uri-component": "^0.5.1"
   }
 }
