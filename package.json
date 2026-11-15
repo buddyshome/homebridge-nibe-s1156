@@ -13,8 +13,8 @@
   },
   "scripts": {
     "test": "npm run lint && npm run typecheck && node scripts/test.ts",
-    "lint": "eslint --ext .ts src scripts",
-    "lintFix": "eslint --fix --ext .ts src scripts",
+    "lint": "eslint src scripts",
+    "lintFix": "eslint --fix src scripts",
     "typecheck": "tsc --noEmit",
     "linkHomebridge": "npm link homebridge",
     "develop": "npm run linkHomebridge && npm run build && npm link && node scripts/dev.ts",
@@ -39,11 +39,12 @@
     "js-yaml": "^5.5.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^6.0.0",
     "@types/node": "^22.20.5",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.42.1",
-    "eslint": "^8.35.0",
-    "typescript": "^6.0.3"
+    "eslint": "^10.15.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2"
   },
   "peerDependencies": {
     "homebridge": "^2.0.0"
