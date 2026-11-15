@@ -1,7 +1,7 @@
-import {Data} from './DataDomain';
-import {Logger} from './PlatformDomain';
-import {Locale} from './util/Locale';
-import {toHapName} from './util/HapName';
+import {type Data} from './DataDomain.ts';
+import {type Logger} from './PlatformDomain.ts';
+import {type Locale} from './util/Locale.ts';
+import {toHapName} from './util/HapName.ts';
 
 export interface AccessoryInstance {
   context: AccessoryContext
@@ -62,13 +62,25 @@ export interface AccessoryContext {
 }
 
 export abstract class AccessoryDefinition {
+  protected readonly name: string;
+  protected readonly version: number;
+  protected readonly locale: Locale;
+  protected readonly serviceResolver: ServiceResolver;
+  protected readonly log: Logger;
+
   protected constructor(
-    protected readonly name: string,
-    protected readonly version: number,
-    protected readonly locale: Locale,
-    protected readonly serviceResolver: ServiceResolver,
-    protected readonly log: Logger,
-  ) {}
+    name: string,
+    version: number,
+    locale: Locale,
+    serviceResolver: ServiceResolver,
+    log: Logger,
+  ) {
+    this.name = name;
+    this.version = version;
+    this.locale = locale;
+    this.serviceResolver = serviceResolver;
+    this.log = log;
+  }
 
   private readonly notApplicableLogged = new Set<string>();
 
@@ -131,7 +143,8 @@ export abstract class AccessoryDefinition {
   protected updateCharacteristic(service: ServiceInstance, name: CharacteristicType, value, props: object | undefined = undefined) {
     const characteristic = this.serviceResolver.resolveCharacteristic(name);
     if (name === 'Name' || name === 'ConfiguredName') {
-      value = toHapName(value);
+      // Without a translation in lang/*.yaml, fall back to the accessory's own name.
+      value = toHapName(value, toHapName(this.name));
     }
     service.updateCharacteristic(characteristic, value);
     if (props) {

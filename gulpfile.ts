@@ -1,16 +1,11 @@
 import {dest, parallel, series, src, watch as gulpWatch} from 'gulp';
-import * as ts from 'gulp-typescript';
-import del from 'del';
 import gulpESLintNew from 'gulp-eslint-new';
-import nodemon from 'gulp-nodemon';
-import jest from 'gulp-jest';
-import sourcemaps from 'gulp-sourcemaps';
-import { execSync } from 'child_process';
+import nodemon from 'nodemon';
+import { execFile, execSync, spawn } from 'child_process';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 
-const tsProject = ts.createProject('tsconfig.json', { rootDir: 'src/' });
 const destDir = 'dist/';
 
 exports.uiBuild = () => src('homebridge-ui/**')
@@ -19,11 +14,20 @@ exports.uiBuild = () => src('homebridge-ui/**')
 exports.yamlBuild = () => src('+(config|lang)/*.yaml')
   .pipe(dest(`${destDir}`));
 
-exports.typescriptBuild = () => src('src/**/*.ts')
-  .pipe(sourcemaps.init())
-  .pipe(tsProject())
-  .pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '../src' }))
-  .pipe(dest(`${destDir}`));
+// Compile with the TypeScript compiler itself; tsconfig.build.json limits it to src/
+// and tsc writes the sourcemaps (pointing back to src/) on its own.
+exports.typescriptBuild = () => new Promise<void>((resolve, reject) => {
+  const tsc = require.resolve('typescript/bin/tsc');
+  execFile(process.execPath, [tsc, '-p', 'tsconfig.build.json'], (error, stdout, stderr) => {
+    process.stdout.write(stdout);
+    process.stderr.write(stderr);
+    if (error) {
+      reject(new Error('TypeScript compilation failed'));
+    } else {
+      resolve();
+    }
+  });
+});
 
 exports.eslint = () => src(['src/**/*.ts', 'gulpfile.ts'])
   .pipe(gulpESLintNew())
@@ -34,7 +38,7 @@ exports.eslintFix = () => src(['src/**/*.ts', 'gulpfile.ts'])
   .pipe(gulpESLintNew({ fix: true }))
   .pipe(gulpESLintNew.fix());
 
-exports.clean = () => del([`${destDir}`]);
+exports.clean = async () => fs.rmSync(destDir, { recursive: true, force: true });
 
 exports.build = parallel(exports.yamlBuild, exports.typescriptBuild, exports.uiBuild);
 
@@ -51,14 +55,15 @@ const globalHomebridge = () => {
 const homebridgeLogFile = path.join(os.homedir(), '.homebridge', 'homebridge.log');
 
 // gulp rebuilds sources into dist/, nodemon restarts homebridge when dist/ changes.
-// (gulp-nodemon's own `tasks` option spawns gulp via an unquoted shell path and
-// breaks when the project path contains spaces.)
 exports.watch = (done) => {
   gulpWatch('src/**/*.ts', exports.typescriptBuild);
   gulpWatch('homebridge-ui/**', exports.uiBuild);
   gulpWatch('+(config|lang)/*.yaml', exports.yamlBuild);
 
-  nodemon({
+  // nodemon's bundled types require `script` (not needed with `exec`) and lack the
+  // 'readable'/'quit' events on the returned instance, so treat it as an EventEmitter.
+  const startNodemon = nodemon as unknown as (settings: object) => NodeJS.EventEmitter;
+  startNodemon({
     exec: `"${globalHomebridge()}" -I -D`,
     signal: 'SIGTERM',
     stdout: false,
@@ -66,7 +71,6 @@ exports.watch = (done) => {
     ext: 'js html yaml',
     delay: 1000,
     env: { 'NODE_OPTIONS': '--trace-warnings' },
-    done: done,
   }).on('readable', function (this: { stdout: NodeJS.ReadableStream; stderr: NodeJS.ReadableStream }) {
     // Fires on each (re)start: mirror output to the console and to the UI log file.
     const logFile = fs.createWriteStream(homebridgeLogFile, { flags: 'a' });
@@ -74,22 +78,32 @@ exports.watch = (done) => {
     this.stderr.pipe(process.stderr, { end: false });
     this.stdout.pipe(logFile);
     this.stderr.pipe(logFile, { end: false });
+  }).on('quit', () => {
+    done();
+    process.exit();
   });
 };
 
-exports.jest = () => {
-  process.env.NODE_ENV = 'test';
+// Node's built-in test runner runs the .ts tests directly (type stripping, Node >= 22.18),
+// with coverage for src/ printed to the console and written to coverage/lcov.info.
+exports.unitTest = () => new Promise<void>((resolve, reject) => {
+  const args = [
+    '--test',
+    '--disable-warning=MODULE_TYPELESS_PACKAGE_JSON',
+    '--experimental-test-coverage',
+    '--test-coverage-include=src/**',
+    '--test-reporter=spec', '--test-reporter-destination=stdout',
+    '--test-reporter=lcov', '--test-reporter-destination=coverage/lcov.info',
+    'tests/**/*.test.ts',
+  ];
+  spawn(process.execPath, args, { stdio: 'inherit' }).on('exit', (code) => {
+    if (code === 0) {
+      resolve();
+    } else {
+      reject(new Error('Tests failed'));
+    }
+  });
+});
 
-  return src('tests/**/*.test.ts')
-    .pipe(jest({
-      preset: 'ts-jest',
-      testEnvironment: 'node',
-      transform: { '^.+\\.ts?$': 'ts-jest' },
-      transformIgnorePatterns: ['<rootDir>/node_modules/'],
-      collectCoverage: true,
-      coverageReporters: ['json','html'],
-    }));
-};
-
-exports.test = series(exports.eslint, exports.jest);
+exports.test = series(exports.eslint, exports.unitTest);
 exports.default = exports.build;

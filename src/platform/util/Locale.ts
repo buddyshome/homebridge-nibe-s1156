@@ -1,4 +1,4 @@
-import {Logger} from '../PlatformDomain';
+import {type Logger} from '../PlatformDomain.ts';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
@@ -11,13 +11,12 @@ export class Locale {
     [id: string]: string;
   };
     
-  constructor(private readonly lang: string, private readonly log: Logger) {
+  /**
+   * @param langDir folder with the <lang>.yaml files (dist/lang at runtime, lang/ in tests)
+   */
+  constructor(lang: string, log: Logger, langDir: string) {
     try {
-      const nodeEnv: string = (process.env.NODE_ENV as string);
-      let langFile = path.resolve(__dirname, `../../lang/${lang}.yaml`);
-      if (nodeEnv === 'test') {
-        langFile = path.resolve(__dirname, `../../../lang/${lang}.yaml`);
-      }
+      const langFile = path.resolve(langDir, `${lang}.yaml`);
       this.texts = this.flattenObject(yaml.load(fs.readFileSync(langFile, ENCODING)));
     } catch (e1) {
       log.error(`Failed to load language file: ${e1}`);

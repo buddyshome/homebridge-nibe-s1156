@@ -1,7 +1,7 @@
-import {AccessoryDefinition, AccessoryInstance, ServiceResolver} from '../AccessoryDomain';
-import {Locale} from '../util/Locale';
-import {Logger} from '../PlatformDomain';
-import {Data} from '../DataDomain';
+import {AccessoryDefinition, type AccessoryInstance, type ServiceResolver} from '../AccessoryDomain.ts';
+import {type Locale} from '../util/Locale.ts';
+import {type Logger} from '../PlatformDomain.ts';
+import {type Data} from '../DataDomain.ts';
 
 // https://raw.githubusercontent.com/sebilm/ioBroker.nibeuplink/refs/heads/master/src/parameters.ts
 // 40014 - HOT_WATER_CHARGING_BT6
@@ -16,15 +16,18 @@ const RO_PROPS = { 'perms': [ 'pr', 'ev' ] };
 
 export class HotWaterAccessory extends AccessoryDefinition {
 
+  protected readonly setValue: (deviceId: string, paramId: string, value: any) => Promise<void>;
+
   constructor(
-    protected readonly name: string,
-    protected readonly version: number,
-    protected readonly locale: Locale,
-    protected readonly serviceResolver: ServiceResolver,
-    protected readonly log: Logger,
-    protected readonly setValue: (deviceId: string, paramId: string, value: any) => Promise<void>,
+    name: string,
+    version: number,
+    locale: Locale,
+    serviceResolver: ServiceResolver,
+    log: Logger,
+    setValue: (deviceId: string, paramId: string, value: any) => Promise<void>,
   ) {
     super(name, version, locale, serviceResolver, log);
+    this.setValue = setValue;
   }
 
   isApplicable(data: Data): boolean {

@@ -1,17 +1,16 @@
-import {deviceInfo, loadData, mockAccessory, serviceResolver, testDevice, testLogger, testSystem} from './test-utils';
-import {Locale} from '../src/platform/util/Locale';
-import {MyUplinkApiFetcher} from '../src/platform/myuplink/MyUplinkApiFetcher';
-import {AccessoryDefinition, AccessoryInstance} from '../src/platform/AccessoryDomain';
-import {Data} from '../src/platform/DataDomain';
-import {Logger} from '../src/platform/PlatformDomain';
+import { describe, test } from 'node:test';
+import assert from 'node:assert/strict';
+import {deviceInfo, langDir, loadData, mockAccessory, serviceResolver, testDevice, testLogger, testSystem} from './test-utils.ts';
+import {Locale} from '../src/platform/util/Locale.ts';
+import {MyUplinkApiFetcher} from '../src/platform/myuplink/MyUplinkApiFetcher.ts';
+import {AccessoryDefinition, type AccessoryInstance} from '../src/platform/AccessoryDomain.ts';
+import {type Data} from '../src/platform/DataDomain.ts';
+import {type Logger} from '../src/platform/PlatformDomain.ts';
 
 describe('Test common accessory functionalities', () => {
 
   class TestAccessory extends AccessoryDefinition {
-    constructor(
-      protected readonly locale: Locale,
-      protected readonly log: Logger,
-    ) {
+    constructor(locale: Locale, log: Logger) {
       super('test', 1, locale, serviceResolver, log);
     }
 
@@ -21,7 +20,7 @@ describe('Test common accessory functionalities', () => {
   }
 
   const accessoryDefinition = new TestAccessory(
-    new Locale('en', testLogger),
+    new Locale('en', testLogger, langDir),
     testLogger,
   );
 
@@ -32,17 +31,17 @@ describe('Test common accessory functionalities', () => {
     const startEpoch = Date.now();
     accessoryDefinition.create(platformAccessory as AccessoryInstance, data);
 
-    expect(platformAccessory.context.accessoryId).toBe('emmy-r-test::test');
-    expect(platformAccessory.context.version).toBe(1);
-    expect(platformAccessory.context.systemId).toBe('42f23d18');
-    expect(platformAccessory.context.systemName).toBe('Dom');
-    expect(platformAccessory.context.deviceId).toBe('emmy-r-test');
-    expect(platformAccessory.context.deviceName).toBe('F1145-10 PC');
-    expect(platformAccessory.context.lastUpdate).toBeGreaterThanOrEqual(startEpoch);
+    assert.equal(platformAccessory.context.accessoryId, 'emmy-r-test::test');
+    assert.equal(platformAccessory.context.version, 1);
+    assert.equal(platformAccessory.context.systemId, '42f23d18');
+    assert.equal(platformAccessory.context.systemName, 'Dom');
+    assert.equal(platformAccessory.context.deviceId, 'emmy-r-test');
+    assert.equal(platformAccessory.context.deviceName, 'F1145-10 PC');
+    assert.ok(platformAccessory.context.lastUpdate >= startEpoch);
 
-    expect(platformAccessory.getValue('AccessoryInformation', 'Manufacturer')).toBe('Nibe');
-    expect(platformAccessory.getValue('AccessoryInformation', 'Model')).toBe('F1145-10 PC (Dom)');
-    expect(platformAccessory.getValue('AccessoryInformation', 'SerialNumber')).toBe('666');
+    assert.equal(platformAccessory.getValue('AccessoryInformation', 'Manufacturer'), 'Nibe');
+    assert.equal(platformAccessory.getValue('AccessoryInformation', 'Model'), 'F1145-10 PC (Dom)');
+    assert.equal(platformAccessory.getValue('AccessoryInformation', 'SerialNumber'), '666');
   });
 });
 

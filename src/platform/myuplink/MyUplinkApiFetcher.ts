@@ -1,10 +1,10 @@
-import axios, { AxiosError } from 'axios';
+import axios, { type AxiosError } from 'axios';
 import { EventEmitter } from 'events';
-import * as dataDomain from '../DataDomain';
-import { Data, DataFetcher } from '../DataDomain';
-import { Logger } from '../PlatformDomain';
-import * as api from './MyUplinkApiModel';
-import { Cache } from '../util/Cache';
+import type * as dataDomain from '../DataDomain.ts';
+import { type Data, type DataFetcher } from '../DataDomain.ts';
+import { type Logger } from '../PlatformDomain.ts';
+import type * as api from './MyUplinkApiModel.ts';
+import { Cache } from '../util/Cache.ts';
 import moment from 'moment';
 
 interface Options {
@@ -66,7 +66,7 @@ export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
         this.active = false;
       });
     };
-    this.interval = setInterval(exec, <number>this.options.interval * 1000);
+    this.interval = setInterval(exec, (this.options.interval as number) * 1000);
 
     exec();
   }

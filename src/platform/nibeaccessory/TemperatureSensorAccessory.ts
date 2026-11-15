@@ -1,19 +1,22 @@
-import {Data} from '../DataDomain';
-import {AccessoryDefinition, AccessoryInstance, ServiceResolver} from '../AccessoryDomain';
-import {Logger} from '../PlatformDomain';
-import {Locale} from '../util/Locale';
+import {type Data} from '../DataDomain.ts';
+import {AccessoryDefinition, type AccessoryInstance, type ServiceResolver} from '../AccessoryDomain.ts';
+import {type Logger} from '../PlatformDomain.ts';
+import {type Locale} from '../util/Locale.ts';
 
 export class TemperatureSensorAccessory extends AccessoryDefinition {
 
+  private readonly parameterId: string;
+
   constructor(
-    private readonly parameterId: string,
-    protected readonly name: string,
-    protected readonly version: number,
-    protected readonly locale: Locale,
-    protected readonly serviceResolver: ServiceResolver,
-    protected readonly log: Logger,
+    parameterId: string,
+    name: string,
+    version: number,
+    locale: Locale,
+    serviceResolver: ServiceResolver,
+    log: Logger,
   ) {
     super(name, version, locale, serviceResolver, log);
+    this.parameterId = parameterId;
   }
 
   isApplicable(data: Data) {

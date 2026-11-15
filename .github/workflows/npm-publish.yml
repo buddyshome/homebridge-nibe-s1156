@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '26'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci --ignore-scripts #Required to avoid installation script going wrong
       # homebridge is not a devDependency: install it globally and link it for the type definitions

@@ -3,11 +3,10 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended", // uses the recommended rules from the @typescript-eslint/eslint-plugin
-    "plugin:jest/recommended" // enables eslint-plugin-jest
+    "plugin:@typescript-eslint/recommended" // uses the recommended rules from the @typescript-eslint/eslint-plugin
   ],
   "parserOptions": {
-    "ecmaVersion": 2019,
+    "ecmaVersion": 2022,
     "sourceType": "module"
   },
   "rules": {
@@ -19,6 +18,8 @@
     "dot-notation": "error",
     "eqeqeq": ["error", "always", {"null":  "ignore"}],
     "curly": ["error", "all"],
-    "brace-style": ["error"]
+    "brace-style": ["error"],
+    // Node runs the .ts tests directly (type stripping): type-only imports must be marked
+    "@typescript-eslint/consistent-type-imports": ["error", { "fixStyle": "inline-type-imports" }]
   }
 }

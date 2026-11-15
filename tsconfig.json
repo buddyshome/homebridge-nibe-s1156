@@ -1,17 +1,22 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "target": "ES2019",
-    "lib": ["ES2019"],
+    "module": "Node16",
+    "target": "ES2022",
+    "lib": ["ES2022"],
     "declarationMap": true,
     "sourceMap": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "node",
+    "isolatedModules": true,
+    "erasableSyntaxOnly": true,
+    "rewriteRelativeImportExtensions": true,
+    "types": ["node"],
+    "moduleResolution": "Node16",
     "noImplicitAny": false,
     "strict": true,
     "noEmitOnError": true,
     "declaration": true,
+    "rootDir": ".",
     "outDir": "dist/",
   }
 }
