@@ -5,7 +5,6 @@ import { type Data, type DataFetcher } from '../DataDomain.ts';
 import { type Logger } from '../PlatformDomain.ts';
 import type * as api from './MyUplinkApiModel.ts';
 import { Cache } from '../util/Cache.ts';
-import moment from 'moment';
 
 interface Options {
   clientId: string;
@@ -192,7 +191,7 @@ export class MyUplinkApiFetcher extends EventEmitter implements DataFetcher {
     }
 
     return response.subscriptions
-      .filter(s => moment(s.validUntil).isAfter(moment()))
+      .filter(s => new Date(s.validUntil) > new Date())
       .map(s => s.type);
   }
 
