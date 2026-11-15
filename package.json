@@ -20,6 +20,7 @@
     "develop": "npm run linkHomebridge && npm run build && npm link && node scripts/dev.ts",
     "clean": "node scripts/build.ts clean",
     "build": "node scripts/build.ts",
+    "stop": "node scripts/stop.ts",
     "prepublishOnly": "npm run test && npm run build",
     "postpublish": "npm run clean",
     "postversion": "git push && git push --tags",
