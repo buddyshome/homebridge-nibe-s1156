@@ -87,6 +87,8 @@ exports.watch = (done) => {
 // Node's built-in test runner runs the .ts tests directly (type stripping, Node >= 22.18),
 // with coverage for src/ printed to the console and written to coverage/lcov.info.
 exports.unitTest = () => new Promise<void>((resolve, reject) => {
+  // The lcov reporter does not create its output folder (coverage/ is not in git).
+  fs.mkdirSync('coverage', { recursive: true });
   const args = [
     '--test',
     '--disable-warning=MODULE_TYPELESS_PACKAGE_JSON',
