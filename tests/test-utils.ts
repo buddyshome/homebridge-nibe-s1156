@@ -1,12 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  AccessoryContext,
-  CharacteristicType,
-  ServiceInstance,
-  ServiceResolver,
-  ServiceType,
-} from '../src/platform/AccessoryDomain';
+  type AccessoryContext,
+  type CharacteristicType,
+  type ServiceInstance,
+  type ServiceResolver,
+  type ServiceType,
+} from '../src/platform/AccessoryDomain.ts';
+
+// Tests run from the project root (npm test).
+export const langDir = path.resolve('lang');
 
 export const testLogger = { // logger
   debug: (message: string, ...parameters: any[]) => {
@@ -74,5 +77,5 @@ export const serviceResolver = {
 } as ServiceResolver;
 
 export const loadData = function (product) {
-  return JSON.parse(fs.readFileSync(path.resolve(__dirname, `./data/nibe-myuplink/${product.replace(/ /g, '-')}.json`), 'utf8'));
+  return JSON.parse(fs.readFileSync(path.resolve('tests/data/nibe-myuplink', `${product.replace(/ /g, '-')}.json`), 'utf8'));
 };

@@ -1,16 +1,16 @@
-import {AccessoryDefinition, AccessoryInstance, ServiceResolver} from '../AccessoryDomain';
-import {Data} from '../DataDomain';
-import {Locale} from '../util/Locale';
-import {Logger} from '../PlatformDomain';
+import {AccessoryDefinition, type AccessoryInstance, type ServiceResolver} from '../AccessoryDomain.ts';
+import {type Data} from '../DataDomain.ts';
+import {type Locale} from '../util/Locale.ts';
+import {type Logger} from '../PlatformDomain.ts';
 
 export class NewFirmwareAccessory extends AccessoryDefinition {
 
   constructor(
-    protected readonly name: string,
-    protected readonly version: number,
-    protected readonly locale: Locale,
-    protected readonly serviceResolver: ServiceResolver,
-    protected readonly log: Logger,
+    name: string,
+    version: number,
+    locale: Locale,
+    serviceResolver: ServiceResolver,
+    log: Logger,
   ) {
     super(name, version, locale, serviceResolver, log);
   }

@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/homebridge-nibe-s1156"><img src="https://img.shields.io/npm/v/homebridge-nibe-s1156?color=cb3837&logo=npm" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/homebridge-nibe-s1156"><img src="https://img.shields.io/npm/dm/homebridge-nibe-s1156?color=cb3837" alt="npm downloads"></a>
-  <a href="https://github.com/homebridge/homebridge"><img src="https://img.shields.io/badge/homebridge-1.8%20%7C%202.x-491F59?logo=homebridge" alt="Homebridge 1.8 | 2.x"></a>
+  <a href="https://github.com/homebridge/homebridge"><img src="https://img.shields.io/badge/homebridge-2.x-491F59?logo=homebridge" alt="Homebridge 2.x"></a>
   <a href="https://github.com/buddyshome/homebridge-nibe-s1156/blob/main/LICENSE"><img src="https://img.shields.io/github/license/buddyshome/homebridge-nibe-s1156" alt="MIT license"></a>
 </p>
 
@@ -35,8 +35,8 @@
 | | |
 |---|---|
 | **Heat pump** | NIBE S1156, connected to [NIBE myUplink](https://myuplink.com) |
-| **Homebridge** | 1.8 or newer, including Homebridge 2.x |
-| **Node.js** | 18 or newer (Homebridge 2.5 needs 22.12 or newer) |
+| **Homebridge** | 2.x |
+| **Node.js** | 22 (22.12 or newer), 24 or 26 |
 | **myUplink API app** | Free, see [Setup](#-setup) |
 
 Other NIBE models connected to myUplink may work too, because the plugin only shows accessories whose data your pump actually reports.

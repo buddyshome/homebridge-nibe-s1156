@@ -1,18 +1,20 @@
-import { API, APIEvent, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig } from 'homebridge';
-import { MyUplinkApiFetcher } from './myuplink/MyUplinkApiFetcher';
-import * as dataDomain from './DataDomain';
-import { Data, DataFetcher } from './DataDomain';
-import { Locale } from './util/Locale';
+import type { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig } from 'homebridge' with { 'resolution-mode': 'import' };
+import * as path from 'path';
+import { MyUplinkApiFetcher } from './myuplink/MyUplinkApiFetcher.ts';
+import type * as dataDomain from './DataDomain.ts';
+import { type Data, type DataFetcher } from './DataDomain.ts';
+import { Locale } from './util/Locale.ts';
+import { toHapName } from './util/HapName.ts';
 import {
-  AccessoryContext,
-  AccessoryDefinition,
-  AccessoryInstance,
-  ServiceResolver,
-  ServiceType,
-} from './AccessoryDomain';
-import { TemperatureSensorAccessory } from './nibeaccessory/TemperatureSensorAccessory';
-import { HotWaterAccessory } from './nibeaccessory/HotWaterAccessory';
-import { NewFirmwareAccessory } from './nibeaccessory/NewFirmwareAccessory';
+  type AccessoryContext,
+  type AccessoryDefinition,
+  type AccessoryInstance,
+  type ServiceResolver,
+  type ServiceType,
+} from './AccessoryDomain.ts';
+import { TemperatureSensorAccessory } from './nibeaccessory/TemperatureSensorAccessory.ts';
+import { HotWaterAccessory } from './nibeaccessory/HotWaterAccessory.ts';
+import { NewFirmwareAccessory } from './nibeaccessory/NewFirmwareAccessory.ts';
 
 export const PLATFORM_NAME = 'Nibe-s1156';
 export const PLUGIN_NAME = 'homebridge-nibe-s1156';
@@ -26,12 +28,19 @@ export class NibePlatform implements DynamicPlatformPlugin {
 
   private readonly dataFetcher: DataFetcher;
   private readonly accessories: AccessoryInstance[] = [];
+  private readonly renamedAccessories: PlatformAccessory[] = [];
   private readonly accessoryDefinitions: AccessoryDefinition[];
   private readonly locale: Locale;
   private readonly serviceResolver: ServiceResolver;
+  private readonly log: Logger;
+  private readonly config: PlatformConfig;
+  private readonly api: API;
 
-  constructor(private readonly log: Logger, private readonly config: PlatformConfig, private readonly api: API) {
-    this.locale = new Locale(config.language, log);
+  constructor(log: Logger, config: PlatformConfig, api: API) {
+    this.log = log;
+    this.config = config;
+    this.api = api;
+    this.locale = new Locale(config.language, log, path.resolve(__dirname, '../lang'));
 
     this.serviceResolver = {
       resolveCharacteristic(type: any) {
@@ -51,25 +60,25 @@ export class NibePlatform implements DynamicPlatformPlugin {
     }, log);
 
     this.accessoryDefinitions = [
-      new TemperatureSensorAccessory('40067', 'average-outdoor-temperature-40067', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('54', 'Average temper­ature (BT1)', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('40004', 'outdoor-temperature-40004', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('4', 'Current outdoor temper­ature (BT1)', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('44362', 'outdoor-temperature-44362', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('40025', 'ventilation-exhaust-air-40025', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('40026', 'ventilation-extract-air-40026', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('40075', 'ventilation-supply-air-40075', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('40183', 'ventilation-outdoor-40183', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('40013', 'hot-water-top-40013', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('12', 'Hot water char­ging (BT6)', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('38', 'Pool (BT51)', 1, this.locale, this.serviceResolver, this.log),
-      new TemperatureSensorAccessory('24632', 'Pool supply line (BT59)', 1, this.locale, this.serviceResolver, this.log),
-      new HotWaterAccessory('hot-water', 3, this.locale, this.serviceResolver, this.log,
+      new TemperatureSensorAccessory('40067', 'average-outdoor-temperature-40067', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('54', 'Average temper­ature (BT1)', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('40004', 'outdoor-temperature-40004', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('4', 'Current outdoor temper­ature (BT1)', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('44362', 'outdoor-temperature-44362', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('40025', 'ventilation-exhaust-air-40025', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('40026', 'ventilation-extract-air-40026', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('40075', 'ventilation-supply-air-40075', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('40183', 'ventilation-outdoor-40183', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('40013', 'hot-water-top-40013', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('12', 'Hot water char­ging (BT6)', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('38', 'Pool (BT51)', 2, this.locale, this.serviceResolver, this.log),
+      new TemperatureSensorAccessory('24632', 'Pool supply line (BT59)', 2, this.locale, this.serviceResolver, this.log),
+      new HotWaterAccessory('hot-water', 4, this.locale, this.serviceResolver, this.log,
         async (deviceId: string, paramId: string, value: any) => {
           return await this.dataFetcher.setValue(deviceId, paramId, value);
         },
       ),
-      new NewFirmwareAccessory('new-firmware', 1, this.locale, this.serviceResolver, this.log),
+      new NewFirmwareAccessory('new-firmware', 2, this.locale, this.serviceResolver, this.log),
     ];
 
 
@@ -79,8 +88,13 @@ export class NibePlatform implements DynamicPlatformPlugin {
     // Dynamic Platform plugins should only register new accessories after this event was fired,
     // in order to ensure they weren't added to homebridge already. This event can also be used
     // to start discovery of new accessories.
-    this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
+    this.api.on('didFinishLaunching', () => {
       log.debug('Executed didFinishLaunching callback');
+      if (this.renamedAccessories.length > 0) {
+        // Persist the fixed names so HAP does not warn about the cached names on the next start.
+        this.api.updatePlatformAccessories(this.renamedAccessories);
+        this.renamedAccessories.length = 0;
+      }
       this.dataFetcher.start();
       this.dataFetcher
         .on<dataDomain.Data>('data', (data) => {
@@ -90,7 +104,7 @@ export class NibePlatform implements DynamicPlatformPlugin {
         });
     });
 
-    this.api.on(APIEvent.SHUTDOWN, () => {
+    this.api.on('shutdown', () => {
       this.dataFetcher.stop();
     });
   }
@@ -133,6 +147,8 @@ export class NibePlatform implements DynamicPlatformPlugin {
       this.log.info('Old version of accessory, recreating: [%s]',
         platformAccessory.context.accessoryId);
       accessoryDefinition.create(platformAccessory, data);
+      // Persist the new version/name so the accessory is not recreated on every start.
+      this.api.updatePlatformAccessories([platformAccessory as unknown as PlatformAccessory]);
     }
 
     this.log.debug('Updating accessory: [%s]', platformAccessory.context.accessoryId);
@@ -160,8 +176,16 @@ export class NibePlatform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
    */
-  configureAccessory(accessory: PlatformAccessory<AccessoryContext>) {
+  configureAccessory(accessory: PlatformAccessory) {
     this.log.info(`Loading accessory from cache: [${accessory.displayName}], UUID: [${accessory.UUID}]`);
-    this.accessories.push(accessory as AccessoryInstance);
+    const validName = toHapName(accessory.displayName);
+    if (validName !== accessory.displayName) {
+      accessory.displayName = validName;
+      accessory.getService(this.api.hap.Service.AccessoryInformation)
+        ?.updateCharacteristic(this.api.hap.Characteristic.Name, validName);
+      this.log.info(`Renamed cached accessory to valid HomeKit name: [${validName}]`);
+      this.renamedAccessories.push(accessory);
+    }
+    this.accessories.push(accessory as unknown as AccessoryInstance);
   }
 }

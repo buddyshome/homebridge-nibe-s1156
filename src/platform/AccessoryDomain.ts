@@ -1,6 +1,7 @@
-import {Data} from './DataDomain';
-import {Logger} from './PlatformDomain';
-import {Locale} from './util/Locale';
+import {type Data} from './DataDomain.ts';
+import {type Logger} from './PlatformDomain.ts';
+import {type Locale} from './util/Locale.ts';
+import {toHapName} from './util/HapName.ts';
 
 export interface AccessoryInstance {
   context: AccessoryContext
@@ -61,22 +62,45 @@ export interface AccessoryContext {
 }
 
 export abstract class AccessoryDefinition {
+  protected readonly name: string;
+  protected readonly version: number;
+  protected readonly locale: Locale;
+  protected readonly serviceResolver: ServiceResolver;
+  protected readonly log: Logger;
+
   protected constructor(
-    protected readonly name: string,
-    protected readonly version: number,
-    protected readonly locale: Locale,
-    protected readonly serviceResolver: ServiceResolver,
-    protected readonly log: Logger,
-  ) {}
+    name: string,
+    version: number,
+    locale: Locale,
+    serviceResolver: ServiceResolver,
+    log: Logger,
+  ) {
+    this.name = name;
+    this.version = version;
+    this.locale = locale;
+    this.serviceResolver = serviceResolver;
+    this.log = log;
+  }
+
+  private readonly notApplicableLogged = new Set<string>();
 
   public abstract isApplicable(data: Data): boolean;
+
+  /** Logs once per device that this accessory is not supported, instead of on every poll. */
+  protected logNotApplicable(data: Data): void {
+    const accessoryId = this.buildIdentifier(data);
+    if (!this.notApplicableLogged.has(accessoryId)) {
+      this.notApplicableLogged.add(accessoryId);
+      this.log.debug(`Conditions not met for accessory (not supported by this device): [${accessoryId}]`);
+    }
+  }
 
   public buildIdentifier(data: Data): string {
     return `${data?.device?.id || 'undefined'}::${this.name}`;
   }
 
   public buildName(data: Data) {
-    return `${this.name}::${Date.now()}`;
+    return toHapName(this.name);
   }
 
   public isCurrentVersion(platformAccessory: AccessoryInstance): boolean {
@@ -118,6 +142,10 @@ export abstract class AccessoryDefinition {
 
   protected updateCharacteristic(service: ServiceInstance, name: CharacteristicType, value, props: object | undefined = undefined) {
     const characteristic = this.serviceResolver.resolveCharacteristic(name);
+    if (name === 'Name' || name === 'ConfiguredName') {
+      // Without a translation in lang/*.yaml, fall back to the accessory's own name.
+      value = toHapName(value, toHapName(this.name));
+    }
     service.updateCharacteristic(characteristic, value);
     if (props) {
       service.getCharacteristic(characteristic).setProps(props);

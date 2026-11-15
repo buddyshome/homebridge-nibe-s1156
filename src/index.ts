@@ -1,6 +1,6 @@
-import {API} from 'homebridge';
+import type { API } from 'homebridge' with { 'resolution-mode': 'import' };
 
-import {NibePlatform, PLATFORM_NAME} from './platform/NibePlatform';
+import {NibePlatform, PLATFORM_NAME} from './platform/NibePlatform.ts';
 
 /**
  * This method registers the platform with Homebridge

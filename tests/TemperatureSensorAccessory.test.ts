@@ -1,8 +1,10 @@
-import {TemperatureSensorAccessory} from '../src/platform/nibeaccessory/TemperatureSensorAccessory';
-import {deviceInfo, loadData, mockAccessory, serviceResolver, testDevice, testLogger, testSystem} from './test-utils';
-import {Locale} from '../src/platform/util/Locale';
-import {MyUplinkApiFetcher} from '../src/platform/myuplink/MyUplinkApiFetcher';
-import {AccessoryInstance} from '../src/platform/AccessoryDomain';
+import { describe, test } from 'node:test';
+import assert from 'node:assert/strict';
+import {TemperatureSensorAccessory} from '../src/platform/nibeaccessory/TemperatureSensorAccessory.ts';
+import {deviceInfo, langDir, loadData, mockAccessory, serviceResolver, testDevice, testLogger, testSystem} from './test-utils.ts';
+import {Locale} from '../src/platform/util/Locale.ts';
+import {MyUplinkApiFetcher} from '../src/platform/myuplink/MyUplinkApiFetcher.ts';
+import {type AccessoryInstance} from '../src/platform/AccessoryDomain.ts';
 
 describe('Test TemperatureSensorAccessory', () => {
 
@@ -10,7 +12,7 @@ describe('Test TemperatureSensorAccessory', () => {
     '40067',
     'average-outdoor-temperature-40067',
     1,
-    new Locale('en', testLogger),
+    new Locale('en', testLogger, langDir),
     serviceResolver,
     testLogger,
   );
@@ -18,14 +20,14 @@ describe('Test TemperatureSensorAccessory', () => {
   const data = MyUplinkApiFetcher.mapData(testSystem, [], testDevice, deviceInfo, loadData('F1145-10-PC'));
 
   test('TemperatureSensorAccessory: should be applicable', () => {
-    expect(accessoryDefinition.isApplicable(data)).toBeTruthy();
+    assert.ok(accessoryDefinition.isApplicable(data));
   });
 
   test('TemperatureSensorAccessory: create should set parameters', () => {
     const platformAccessory = mockAccessory();
     accessoryDefinition.create(platformAccessory as AccessoryInstance, data);
 
-    expect(platformAccessory.getValue('TemperatureSensor', 'CurrentTemperature')).toBe(22.9);
-    expect(platformAccessory.getValue('TemperatureSensor', 'Name')).toBe('Nibe average outdoor temperature');
+    assert.equal(platformAccessory.getValue('TemperatureSensor', 'CurrentTemperature'), 22.9);
+    assert.equal(platformAccessory.getValue('TemperatureSensor', 'Name'), 'Nibe average outdoor temperature');
   });
 });
