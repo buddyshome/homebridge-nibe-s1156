@@ -1,6 +1,7 @@
 import {Data} from './DataDomain';
 import {Logger} from './PlatformDomain';
 import {Locale} from './util/Locale';
+import {toHapName} from './util/HapName';
 
 export interface AccessoryInstance {
   context: AccessoryContext
@@ -69,14 +70,25 @@ export abstract class AccessoryDefinition {
     protected readonly log: Logger,
   ) {}
 
+  private readonly notApplicableLogged = new Set<string>();
+
   public abstract isApplicable(data: Data): boolean;
+
+  /** Logs once per device that this accessory is not supported, instead of on every poll. */
+  protected logNotApplicable(data: Data): void {
+    const accessoryId = this.buildIdentifier(data);
+    if (!this.notApplicableLogged.has(accessoryId)) {
+      this.notApplicableLogged.add(accessoryId);
+      this.log.debug(`Conditions not met for accessory (not supported by this device): [${accessoryId}]`);
+    }
+  }
 
   public buildIdentifier(data: Data): string {
     return `${data?.device?.id || 'undefined'}::${this.name}`;
   }
 
   public buildName(data: Data) {
-    return `${this.name}::${Date.now()}`;
+    return toHapName(this.name);
   }
 
   public isCurrentVersion(platformAccessory: AccessoryInstance): boolean {
@@ -118,6 +130,9 @@ export abstract class AccessoryDefinition {
 
   protected updateCharacteristic(service: ServiceInstance, name: CharacteristicType, value, props: object | undefined = undefined) {
     const characteristic = this.serviceResolver.resolveCharacteristic(name);
+    if (name === 'Name' || name === 'ConfiguredName') {
+      value = toHapName(value);
+    }
     service.updateCharacteristic(characteristic, value);
     if (props) {
       service.getCharacteristic(characteristic).setProps(props);

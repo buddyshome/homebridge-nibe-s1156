@@ -38,7 +38,7 @@ exports.clean = () => del([`${destDir}`]);
 
 exports.build = parallel(exports.yamlBuild, exports.typescriptBuild, exports.uiBuild);
 
-// Use the globally installed homebridge, not the local devDependency
+// Use the globally installed homebridge
 // (npm run puts node_modules/.bin first on PATH).
 const globalHomebridge = () => {
   const prefix = execSync('npm prefix -g').toString().trim();

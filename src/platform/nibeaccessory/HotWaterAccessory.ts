@@ -33,7 +33,7 @@ export class HotWaterAccessory extends AccessoryDefinition {
     if (result1 && result2) {
       return true;
     }
-    this.log.debug(`Conditions not meet for accessory: [${this.buildIdentifier(data)}]`);
+    this.logNotApplicable(data);
     return false;
   }
 

@@ -19,6 +19,9 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci --ignore-scripts #Required to avoid installation script going wrong
+      # homebridge is not a devDependency: install it globally and link it for the type definitions
+      - run: npm install -g homebridge
+      - run: npm run linkHomebridge
       - run: npm run build --if-present
 
       - run: npm publish --provenance --access public --tag latest

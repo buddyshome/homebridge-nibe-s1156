@@ -3,6 +3,7 @@ import { MyUplinkApiFetcher } from './myuplink/MyUplinkApiFetcher';
 import * as dataDomain from './DataDomain';
 import { Data, DataFetcher } from './DataDomain';
 import { Locale } from './util/Locale';
+import { toHapName } from './util/HapName';
 import {
   AccessoryContext,
   AccessoryDefinition,
@@ -26,6 +27,7 @@ export class NibePlatform implements DynamicPlatformPlugin {
 
   private readonly dataFetcher: DataFetcher;
   private readonly accessories: AccessoryInstance[] = [];
+  private readonly renamedAccessories: PlatformAccessory[] = [];
   private readonly accessoryDefinitions: AccessoryDefinition[];
   private readonly locale: Locale;
   private readonly serviceResolver: ServiceResolver;
@@ -81,6 +83,11 @@ export class NibePlatform implements DynamicPlatformPlugin {
     // to start discovery of new accessories.
     this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
       log.debug('Executed didFinishLaunching callback');
+      if (this.renamedAccessories.length > 0) {
+        // Persist the fixed names so HAP does not warn about the cached names on the next start.
+        this.api.updatePlatformAccessories(this.renamedAccessories);
+        this.renamedAccessories.length = 0;
+      }
       this.dataFetcher.start();
       this.dataFetcher
         .on<dataDomain.Data>('data', (data) => {
@@ -160,8 +167,16 @@ export class NibePlatform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
    */
-  configureAccessory(accessory: PlatformAccessory<AccessoryContext>) {
+  configureAccessory(accessory: PlatformAccessory) {
     this.log.info(`Loading accessory from cache: [${accessory.displayName}], UUID: [${accessory.UUID}]`);
-    this.accessories.push(accessory as AccessoryInstance);
+    const validName = toHapName(accessory.displayName);
+    if (validName !== accessory.displayName) {
+      accessory.displayName = validName;
+      accessory.getService(this.api.hap.Service.AccessoryInformation)
+        ?.updateCharacteristic(this.api.hap.Characteristic.Name, validName);
+      this.log.info(`Renamed cached accessory to valid HomeKit name: [${validName}]`);
+      this.renamedAccessories.push(accessory);
+    }
+    this.accessories.push(accessory as unknown as AccessoryInstance);
   }
 }
