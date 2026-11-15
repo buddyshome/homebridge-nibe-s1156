@@ -1,4 +1,4 @@
-import type { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig } from 'homebridge' with { 'resolution-mode': 'import' };
+import type { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig } from 'homebridge';
 import * as path from 'path';
 import { MyUplinkApiFetcher } from './myuplink/MyUplinkApiFetcher.ts';
 import type * as dataDomain from './DataDomain.ts';
@@ -40,7 +40,7 @@ export class NibePlatform implements DynamicPlatformPlugin {
     this.log = log;
     this.config = config;
     this.api = api;
-    this.locale = new Locale(config.language, log, path.resolve(__dirname, '../lang'));
+    this.locale = new Locale(config.language, log, path.resolve(import.meta.dirname, '../lang'));
 
     this.serviceResolver = {
       resolveCharacteristic(type: any) {

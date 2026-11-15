@@ -1,22 +1,26 @@
 {
   "name": "homebridge-nibe-s1156",
   "displayName": "Homebridge Nibe S1156",
-  "version": "3.2.1",
+  "version": "3.4.0",
   "description": "Homebridge plugin for Nibe S1156",
   "author": "Alexander Link",
   "license": "MIT",
   "main": "dist/index.js",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/buddyshome/homebridge-nibe-s1156.git"
   },
   "scripts": {
-    "test": "gulp test",
-    "lintFix": "gulp eslintFix",
+    "test": "npm run lint && npm run typecheck && node scripts/test.ts",
+    "lint": "eslint src scripts",
+    "lintFix": "eslint --fix src scripts",
+    "typecheck": "tsc --noEmit",
     "linkHomebridge": "npm link homebridge",
-    "develop": "npm run linkHomebridge && npm run build && npm link && gulp watch",
-    "clean": "gulp clean",
-    "build": "npm run clean && gulp",
+    "develop": "npm run linkHomebridge && npm run build && npm link && node scripts/dev.ts",
+    "clean": "node scripts/build.ts clean",
+    "build": "node scripts/build.ts",
+    "stop": "node scripts/stop.ts",
     "prepublishOnly": "npm run test && npm run build",
     "postpublish": "npm run clean",
     "postversion": "git push && git push --tags",
@@ -32,28 +36,16 @@
     "homebridge": "^2.0.0"
   },
   "dependencies": {
-    "@homebridge/plugin-ui-utils": "^1.0.3",
-    "axios": "^1.7.2",
-    "axios-oauth-client": "^2.2.0",
-    "homebridge-ui": "^0.0.0",
-    "js-yaml": "^4.1.0",
-    "jsonfile": "^6.1.0",
-    "moment": "^2.30.1"
+    "axios": "^1.21.1",
+    "js-yaml": "^5.5.0"
   },
   "devDependencies": {
-    "@types/gulp": "^4.0.17",
-    "@types/js-yaml": "^4.0.9",
-    "@types/jsonfile": "^6.1.4",
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^6.0.0",
     "@types/node": "^22.20.5",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.42.1",
-    "eslint": "^8.35.0",
-    "eslint-config-standard": "^17.0.0",
-    "gulp": "^5.0.1",
-    "gulp-eslint-new": "^2.6.2",
-    "nodemon": "^3.1.3",
-    "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
+    "eslint": "^10.15.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2"
   },
   "peerDependencies": {
     "homebridge": "^2.0.0"

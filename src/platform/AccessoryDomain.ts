@@ -32,7 +32,7 @@ export type ServiceType =
   'TemperatureSensor' |
   'Thermostat' |
   'OccupancySensor' |
-  'Switch'
+  'Switch';
 
 export type CharacteristicType =
   'Manufacturer' |
@@ -48,7 +48,7 @@ export type CharacteristicType =
   'CurrentHeatingCoolingState' |
   'OccupancyDetected' |
   'On' |
-  'TargetTemperature'
+  'TargetTemperature';
 
 export interface AccessoryContext {
   accessoryId: string
