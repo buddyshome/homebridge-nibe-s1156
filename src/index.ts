@@ -1,4 +1,4 @@
-import type { API } from 'homebridge' with { 'resolution-mode': 'import' };
+import type { API } from 'homebridge';
 
 import {NibePlatform, PLATFORM_NAME} from './platform/NibePlatform.ts';
 
